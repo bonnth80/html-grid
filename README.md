@@ -1,2 +1,2 @@
 # HTML Grid
-A JavaScript library for creating a simple grid in HTML5 canvas
+A JavaScript API for creating a simple grid in HTML5 canvas
