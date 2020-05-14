@@ -147,7 +147,7 @@ function grid(canvasElement) {
 
     this.getCellColors = function() {
         return colorData;
-
+    }
     // Action Methods
 
     this.drawGrid = function() {
