@@ -1,7 +1,7 @@
 // Grid.js
-// version:         1.00.0001 
+// version:         1.00.0010
 // author:          Tom Bonner
-// Last updated:    30 March 2019
+// Last updated:    13 May 2020
 // Description:     Grid.js is a basic web graphics framework for
 //                  creating a customizeable grid on an HTML5
 //                  canvas
@@ -13,94 +13,70 @@
 // ex:
 //          var g = grid(canvasElement);
 function grid(canvasElement) {
-    
-    // Meta Data
-    const   version = "1.00.0001";
 
     // Document data
-    var canv = canvasElement.getContext("2d");
     const GRID_PIXEL_OFFSET = 0.5;
 
     // Object Data
-    var numHLines = 40,             // Number of horizontal lines
-        numVLines = 40,             // Number of vertical lines
-        cellWidth =                 // derived cell width
-            canvasElement.width / numVLines,
-        cellHeight =                // derived cell height
-            canvasElement.height / numHLines,
-        drawMLines = false,         // flag for rendering thick major lines
-        mLineInterval = 5,          // major lines every mLineInterval lines
-        colorMajor = "#CCCCCC",     // color of major lines if drawMLines == true
-        colorMinor = "#EEEEEE";     // color of minor lines
-    
-    console.log("grid.js: GridObject initialized.");
-
-    this.getSettings = function(){
-        // returns object list showing current setting values
-        return {
-            "MetaData": {
-                "version: " : version
-            },
-            "DocumentData": {
-            "Canvas": canv
-            },
-            "ObjectSettings": {
-            "numHLines": numHLines,
-            "numVlines": numVLines,
-            "cellWidth": cellWidth,
-            "cellHeight": cellHeight,
-            "drawMLines": drawMLines,
-            "mLineInterval": mLineInterval,
-            "colorMajor": colorMajor,
-            "colorMinor": colorMinor
-            }
+    let config = {
+        metaData: {
+            version: "1.00.0001"
+        },
+        documentData: {
+            canvas: canvasElement.getContext("2d")
+        },
+        objectSettings: {
+            numHLines: 40,          // Number of horizontal lines
+            numVlines: 40,          // Number of vertical lines
+            drawMLines: false,      // flag for rendering thick major lines
+            mLineInterval: 5,       // major lines ever mLineInterval Lines
+            colorMajor: "#CCC",     // color of major lines if drawMlines === true
+            colorMinor: "#EEE",     // color of minor lines
+            cellColors: ["#F00"],   // list of cell colors
+            bgColor: "#FFF",         // color of unfilled cells
         }
+    };
+
+    // Methods
+    //-------------------------------------------------------
+    // Configuration Methods
+    this.getConfig = function(){
+        // returns object list showing current setting values
+        return config;
     }
 
+    this.setHLines = function(hLines){
+        config.objectSettings.numHLines = hLines;
+        config.objectSettings.cellHeight = canvasElement.height / config.numHLines;
+    }
     this.getHLines = function(){
-        return numHLines;
-    }
-    this.setHLines = function(x){
-        numHLines = x;
-        cellHeight = canvasElement.height / numHLines;
+        return config.numHLines;
     }
 
+    this.setVLines = function(vLines){
+        config.objectSettings.numVLines = vLines;
+        config.objectSettings.cellWidth = canvasElement.width / config.numVLines;
+    }
     this.getVLines = function(){
-        return numVLines;
-    }
-    this.setVLines = function(x){
-        numVLines = x;
-        cellWidth = canvasElement.width / numVLines;
+        return config.numVLines;
     }
 
-    this.setDimensions = function(numVLines,numHLines) {
-        setHLines(numHLines);
-        setVLines(numVLines);
+    this.setDimensions = function(vLines,hLines) {
+        setHLines(hLines);
+        setVLines(vLines);
     }
 
     this.getCellWidth = function(){
-        return cellWidth;
+        return config.documentData.canvas.canvas.width / config.objectSettings.numVLines;
     }
 
     this.getCellHeight = function(){
-        return cellHeight;
+        return config.documentData.canvas.canvas.height / config.objectSettings.numHLines;
     }
 
-    this.getColorMajor = function(){
-        return colorMajor;
-    }
-
-    this.getColorMinor = function(){
-        return colorMajor;
-    }
-
-    this.setColorMajor= function(colorStr = colorMajor, redrawGrid = false){
-        var isValidHex  = /(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(colorStr),
-            isValidRGB = /^rgb\([0-9]{1,3}\,[0-9]{1,3}\,[0-9]{1,3}\)$/i.test(colorStr),
-            isValidRGBa = /^rgba\([0-9]{1,3}\,[0-9]{1,3}\,[0-9]{1,3}\,[0-9]*\.[0-9]*f?\)$/i.test(colorStr);
-
-        if (isValidHex || isValidRGB || isValidRGBa) {
-            colorMajor = colorStr;
+    this.setColorMajor = function(colorStr = getColorMajor(), redrawGrid = false){
+        if (isValidColor(colorStr)) {
+            config.objectSettings.colorMajor = colorStr;
             if (redrawGrid) drawGrid();
             return true;
         } else {
@@ -108,14 +84,14 @@ function grid(canvasElement) {
             return false;
         }
     }
+    this.getColorMajor = function(){
+        return config.colorMajor;
+    }
 
-    this.setColorMinor= function(colorStr = colorMinor, redrawGrid = false){
-        var isValidHex  = /(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(colorStr),
-            isValidRGB = /^rgb\([0-9]{1,3}\,[0-9]{1,3}\,[0-9]{1,3}\)$/i.test(colorStr),
-            isValidRGBa = /^rgba\([0-9]{1,3}\,[0-9]{1,3}\,[0-9]{1,3}\,[0-9]*\.[0-9]*f?\)$/i.test(colorStr);
+    this.setColorMinor = function(colorStr = getColorMinor(), redrawGrid = false){
 
-        if (isValidHex || isValidRGB || isValidRGBa) {
-            colorMinor = colorStr;
+        if (isValidColor(colorStr)) {
+            config.objectSettings.colorMinor = colorStr;
             if (redrawGrid) drawGrid();
             return true;
         } else {
@@ -123,86 +99,119 @@ function grid(canvasElement) {
             return false;
         }
     }
+    this.getColorMinor = function(){
+        return config.colorMajor;
+    }
 
+    this.setDrawMLines = function(bDrawMLines){
+        config.objectSettings.drawMLines = bDrawMLines;
+    }
     this.getDrawMLines = function(){
         return drawMLines;
     }
-    
-    this.setDrawMLines = function(bDrawMLines){
-        drawMLines = bDrawMLines;
-    }
 
+    this.setMLineInterval = function(iInterval){
+        config.objectSettings.mLineInterval = iInterval;
+    }
     this.getMLineInterval = function(){
         return mLineInterval;
     }
 
-    this.setMLineInterval = function(iInterval){
-        mLineInterval = iInterval;
+    this.addCellColor = function(colorStr) {
+        if (isValidColor(colorStr)) {
+            config.objectSettings.cellColors = config.cellColors.concat(colorStr);
+            return true;
+        } else {
+            console.error("grid.js: invalid color string in GridObject.setColorMinor() function\n\ttry \"#FFF\", \"#FFFFFF\", \"rgb(255,255,255)\", or \"rgba(255,255,255,1.0f)\"")
+            return false;
+        }
     }
+
+    this.getCellColors = function() {
+        return config.objectSettings.cellColors;
+    }
+
+    // Action Methods
 
     this.drawGrid = function() {
         clearGrid();
         drawVLines();
-        drawHLines();        
-        
-        if (drawMLines){
-            var x = GRID_PIXEL_OFFSET, y = GRID_PIXEL_OFFSET;
-            canv.strokeStyle = colorMajor;
+        drawHLines();
 
-            canv.beginPath();
-            while (x < canvasElement.width) {
-                x+=(cellWidth*mLineInterval);
-                canv.moveTo(x,GRID_PIXEL_OFFSET);
-                canv.lineTo(x,canvasElement.height);
+        if (config.objectSettings.drawMLines){
+            let x = GRID_PIXEL_OFFSET, y = GRID_PIXEL_OFFSET;
+            let c = config.documentData.canvas;
+
+            c.strokeStyle = config.objectSettings.colorMajor;
+
+            c.beginPath();
+            while (x < c.canvas.width) {
+                x += (getCellWidth() * config.objectSettings.mLineInterval);
+                c.moveTo(x, GRID_PIXEL_OFFSET);
+                c.lineTo(x, c.canvas.height);
             }
-            canv.stroke();
-            
-            canv.beginPath();
-            while (y < canvasElement.height) {
-                y+=(cellHeight*mLineInterval);
-                canv.moveTo(GRID_PIXEL_OFFSET,y);
-                canv.lineTo(canvasElement.width, y);
+            c.stroke();
+
+            config.documentData.canvas.beginPath();
+            while (y < c.canvas.height) {
+                y += (getCellHeight() * config.objectSettings.mLineInterval);
+                c.moveTo(GRID_PIXEL_OFFSET,y);
+                c.lineTo(c.canvas.width, y);
             }
-            canv.stroke();
-        }        
+            c.stroke();
+        }
     }
 
     this.drawVLines = function(){
-        var x = GRID_PIXEL_OFFSET;
-        canv.beginPath();
-        canv.strokeStyle = colorMinor;
-        while (x < canvasElement.width) {
-            canv.moveTo(x,GRID_PIXEL_OFFSET);
-            canv.lineTo(x,canvasElement.height);
-            x+=cellWidth;
+        let x = GRID_PIXEL_OFFSET;
+        let c = config.documentData.canvas;
+        let cellWidth = getCellWidth();
+
+        c.beginPath();
+        c.strokeStyle = config.objectSettings.colorMinor;
+        while (x < c.canvas.width) {
+            c.moveTo(x, GRID_PIXEL_OFFSET);
+            c.lineTo(x, c.canvas.height);
+            x += cellWidth;
         }
-        canv.stroke();            
+        c.stroke();
     }
 
     this.drawHLines = function(){
-        var x = GRID_PIXEL_OFFSET;    
-        canv.beginPath();     
-        canv.strokeStyle = colorMinor;           
-        while (x < canvasElement.height) {
-            canv.moveTo(GRID_PIXEL_OFFSET,x);
-            canv.lineTo(canvasElement.width,x);
-            x+=cellHeight;
+        let x = GRID_PIXEL_OFFSET;
+        let c = config.documentData.canvas;
+        let cellHeight = getCellHeight();
+
+        c.beginPath();
+        c.strokeStyle = config.objectSettings.colorMinor;
+        while (x < c.canvas.height) {
+            c.moveTo(GRID_PIXEL_OFFSET, x);
+            c.lineTo(c.canvas.width, x);
+            x += cellHeight;
         }
-        canv.stroke();
+        c.stroke();
     }
 
     this.clearGrid = function(){
         // clears the grid
         // WARNING: this doest just clear the grid, but clears the entire canvas!
         console.warn("grid.js: Canvas is being cleared.")
-        canv.clearRect(0,0, canvasElement.width, canvasElement.height);
+        config.documentData.canvas.clearRect(0,0, canvasElement.width, canvasElement.height);
     }
 
     this.help = function() {
         console.log("Get better n00b!");
         console.log("Disclaimer: This is obviously a placeholder and not meant to imply any insult in any way. A real help dialogue is currently underway.");
     }
-    
+
+    // Validate
+    this.isValidColor = function(colorStr) {
+        return  (typeof(colorStr) == "string") &&
+            (/(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(colorStr) ||
+                /^rgb\([0-9]{1,3}\,[0-9]{1,3}\,[0-9]{1,3}\)$/i.test(colorStr) ||
+                /^rgba\([0-9]{1,3}\,[0-9]{1,3}\,[0-9]{1,3}\,[0-9]*\.[0-9]*f?\)$/i.test(colorStr));
+    }
+
     return this;
 }
 
