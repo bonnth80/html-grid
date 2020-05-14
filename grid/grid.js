@@ -32,10 +32,28 @@ function grid(canvasElement) {
             mLineInterval: 5,       // major lines ever mLineInterval Lines
             colorMajor: "#CCC",     // color of major lines if drawMlines === true
             colorMinor: "#EEE",     // color of minor lines
-            cellColors: ["#F00"],   // list of cell colors
-            bgColor: "#FFF",         // color of unfilled cells
+            bgColor: "#FFF"         // color of unfilled cells
         }
     };
+
+    // cell data object format:
+    /*
+    {
+        x: 14,
+        y: 25,
+        color: "myColor"
+    }
+    */
+    let cellData = [];
+
+    // color data object format:
+    /*
+    {
+        name: "myColor",
+        color: "#F3B"
+    }
+     */
+    let colorData = [];
 
     // Methods
     //-------------------------------------------------------
@@ -117,9 +135,9 @@ function grid(canvasElement) {
         return mLineInterval;
     }
 
-    this.addCellColor = function(colorStr) {
+    this.addColor = function(colorName, colorStr) {
         if (isValidColor(colorStr)) {
-            config.objectSettings.cellColors = config.cellColors.concat(colorStr);
+            colorData = colorData.concat({name: colorName.toString(), color: colorStr});
             return true;
         } else {
             console.error("grid.js: invalid color string in GridObject.setColorMinor() function\n\ttry \"#FFF\", \"#FFFFFF\", \"rgb(255,255,255)\", or \"rgba(255,255,255,1.0f)\"")
@@ -128,8 +146,7 @@ function grid(canvasElement) {
     }
 
     this.getCellColors = function() {
-        return config.objectSettings.cellColors;
-    }
+        return colorData;
 
     // Action Methods
 
