@@ -42,7 +42,6 @@ function grid(canvasElement) {
 
     // Configuration Methods
     this.getConfig = function(){
-        // returns object list showing current setting values
         return config;
     }
 
@@ -121,7 +120,7 @@ function grid(canvasElement) {
     // Action Methods
 
     this.drawGrid = function() {
-        clearGrid();
+        clearCanvas();
         drawVLines();
         drawHLines();
 
@@ -194,8 +193,7 @@ function grid(canvasElement) {
         fillCell(x,y,config.objectSettings.bgColor);
     }
 
-    this.clearGrid = function(){
-        // WARNING: this doest just clear the grid, but clears the entire canvas!
+    this.clearCanvas = function(){
         console.warn("grid.js: Canvas is being cleared.")
         config.documentData.canvas.clearRect(0,0, canvasElement.width, canvasElement.height);
     }
