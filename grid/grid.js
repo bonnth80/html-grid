@@ -36,27 +36,10 @@ function grid(canvasElement) {
         }
     };
 
-    // cell data object format:
-    /*
-    {
-        x: 14,
-        y: 25,
-        color: "myColor"
-    }
-    */
-    let cellData = [];
-
-    // color data object format:
-    /*
-    {
-        name: "myColor",
-        color: "#F3B"
-    }
-     */
-    let colorData = [];
-
+    //-------------------------------------------------------
     // Methods
     //-------------------------------------------------------
+
     // Configuration Methods
     this.getConfig = function(){
         // returns object list showing current setting values
@@ -135,19 +118,6 @@ function grid(canvasElement) {
         return mLineInterval;
     }
 
-    this.addColor = function(colorName, colorStr) {
-        if (isValidColor(colorStr)) {
-            colorData = colorData.concat({name: colorName.toString(), color: colorStr});
-            return true;
-        } else {
-            console.error("grid.js: invalid color string in GridObject.setColorMinor() function\n\ttry \"#FFF\", \"#FFFFFF\", \"rgb(255,255,255)\", or \"rgba(255,255,255,1.0f)\"")
-            return false;
-        }
-    }
-
-    this.getCellColors = function() {
-        return colorData;
-    }
     // Action Methods
 
     this.drawGrid = function() {
@@ -209,8 +179,22 @@ function grid(canvasElement) {
         c.stroke();
     }
 
+    this.fillCell = function(x, y, color = "#00F") {
+        let c = config.documentData.canvas;
+        c.fillStyle = color;
+        c.fillRect(
+            x * getCellWidth() + 1,
+            y * getCellHeight() + 1,
+            getCellWidth() - 1,
+            getCellHeight() - 1
+        );
+    }
+
+    this.clearCell = function(x,y) {
+        fillCell(x,y,config.objectSettings.bgColor);
+    }
+
     this.clearGrid = function(){
-        // clears the grid
         // WARNING: this doest just clear the grid, but clears the entire canvas!
         console.warn("grid.js: Canvas is being cleared.")
         config.documentData.canvas.clearRect(0,0, canvasElement.width, canvasElement.height);
@@ -222,6 +206,7 @@ function grid(canvasElement) {
     }
 
     // Validate
+
     this.isValidColor = function(colorStr) {
         return  (typeof(colorStr) == "string") &&
             (/(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(colorStr) ||
