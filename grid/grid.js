@@ -26,8 +26,8 @@ function grid(canvasElement) {
             canvas: canvasElement.getContext("2d")
         },
         objectSettings: {
-            numHLines: 40,          // Number of horizontal lines
-            numVlines: 40,          // Number of vertical lines
+            numHLines: 40,          // Number of horizontal lines or cells
+            numVLines: 40,          // Number of vertical lines or cells
             drawMLines: false,      // flag for rendering thick major lines
             mLineInterval: 5,       // major lines ever mLineInterval Lines
             colorMajor: "#CCC",     // color of major lines if drawMlines === true
@@ -35,6 +35,29 @@ function grid(canvasElement) {
             bgColor: "#FFF"         // color of unfilled cells
         }
     };
+
+    let data = {
+        cellData: []
+    }
+
+
+    //-------------------------------------------------------
+    // Constants
+    //-------------------------------------------------------
+
+    let MAP_CHECK_TYPE = {
+        EXACT: 0,
+        FILL: 1,
+        HEIGHT_FILL: 2,
+        WIDTH_FILL: 3,
+        IS_ARRAY: 4,
+        IS_ARRAY2D: 5
+    };
+
+    let MAP_FILL_TYPE = {
+        CHANGES_ONLY: 0,
+        FULL: 1
+    }
 
     //-------------------------------------------------------
     // Methods
@@ -119,6 +142,14 @@ function grid(canvasElement) {
 
     // Action Methods
 
+    this.setMapData = function(mapData) {
+        this.mapData = mapData;
+    }
+
+    this.getMapData = function() {
+        return this.mapData;
+    }
+
     this.drawGrid = function() {
         clearCanvas();
         drawVLines();
@@ -178,8 +209,10 @@ function grid(canvasElement) {
         c.stroke();
     }
 
-    this.fillCell = function(x, y, color = "#00F") {
-        let c = config.documentData.canvas;
+    this.fillCell = function(x, y, color = "#00F", canvas = null) {
+        let c = (canvas === null) ? config.documentData.canvas : canvas;
+
+
         c.fillStyle = color;
         c.fillRect(
             x * getCellWidth() + 1,
@@ -191,6 +224,10 @@ function grid(canvasElement) {
 
     this.clearCell = function(x,y) {
         fillCell(x,y,config.objectSettings.bgColor);
+    }
+
+    this.mapFill = function(map, fillType = MAP_FILL_TYPE.CHANGES_ONLY) {
+        // TODO: implement map fill
     }
 
     this.clearCanvas = function(){
@@ -210,6 +247,10 @@ function grid(canvasElement) {
             (/(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(colorStr) ||
                 /^rgb\([0-9]{1,3}\,[0-9]{1,3}\,[0-9]{1,3}\)$/i.test(colorStr) ||
                 /^rgba\([0-9]{1,3}\,[0-9]{1,3}\,[0-9]{1,3}\,[0-9]*\.[0-9]*f?\)$/i.test(colorStr));
+    }
+
+    this.isValidMap = function(map, mapchecktype = MAP_CHECK_TYPE.EXACT) {
+        // TODO: implement map validator
     }
 
     return this;
